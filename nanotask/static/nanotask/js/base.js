@@ -47,20 +47,45 @@ var loadNanotask = function() {
         $(".nano-submit").on("click", function(){
             var secsElapsed = (new Date() - timeNanotaskStarted)/1000;
             $("#base-nanotask").fadeOut("fast");
-            var answersJSON = {};
+            //var answersJSON = {};
+	    var answersJSON = [];  // FIXME hacked
 
             if($(this).attr("name")){
                 var name = $(this).attr("name");
                 var value = $(this).val();
                 answersJSON[name] = value;
             } else {
-                $answers = $(".nano-answer[type=radio]:checked,.nano-answer[type=text]");
-                for(var i in $answers){
-                    var $answer = $answers.eq(i);
-                    var name = $answer.attr("name");
-                    var value = $answer.val();
-                    answersJSON[name] = value;
-                }
+                //$answers = $(".nano-answer[type=radio]:checked,.nano-answer[type=text]");
+
+                /* for(var i in $answers){
+		 *     var $answer = $answers.eq(i);
+		 *     var name = $answer.attr("name");
+		 *     var value = $answer.val();
+		 *     //answersJSON[name] = value;
+		   if(name in answersJSON)
+		   answersJSON[name].push(value);
+		   else
+		   answersJSON[name] = [value];
+		 * }
+		 */
+
+		$(".image_box").each(function(idx, elem) {
+		    var id = $(elem).parent().find("input").attr("value");
+		    var type = $(elem).parent().find("input").attr("name");
+		    var class_names = $(elem).find("img").attr("class").split(" ");
+		    var ans;
+
+		    console.log(id);
+		    console.log(type);
+		    alert("hello");
+
+		    if (class_names.indexOf("checked") > 0) {
+			ans = "yes";
+		    } else {
+			ans = "no";
+		    }
+		    answersJSON.push({"id":id, "type":type, "ans":ans});
+		});
             }
             idsAll.push(nanotask.info.id);
             $("#nano-ids-all").val(JSON.stringify(idsAll));

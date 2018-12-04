@@ -7,7 +7,12 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db import transaction, connection
 from django.utils import timezone
 from .models import *
+
+from django import http
+from django.views.generic.base import View
+
 import json
+import secrets
 
 
 @xframe_options_exempt
@@ -27,6 +32,7 @@ def load_base(request, project_name):
 def load_static_template(request, project_name, template_name):
     template_path = "./{}/{}.html".format(project_name,template_name)
     return render(request, template_path)
+
 
 @csrf_exempt
 def load_nanotask(request, project_name):
@@ -56,6 +62,8 @@ def load_nanotask(request, project_name):
             media_data = json.loads(nanotask.media_data)
             template_path = "./{}/{}.html".format(project_name, nanotask.template_name)
             template = loader.get_template(template_path)
+
+#            import pdb; pdb.set_trace()
             response = {
                 "info": {"id": nanotask.id, "project_name": nanotask.project_name, "template_name": nanotask.template_name },
                 "html": template.render(media_data, request)
@@ -65,11 +73,6 @@ def load_nanotask(request, project_name):
             ret = JsonResponse({"info": None, "html": None}) 
         return ret
 
-
-@csrf_exempt
-def create_nanotasks(request):
-    # TODO:: replace the current script by this restful api
-    pass
 
 @csrf_exempt
 def save_answer(request):
@@ -87,7 +90,9 @@ def save_answer(request):
         answer.secs_elapsed = sec
         answer.save(using=project_name)
 
+#    setting.notify_answer_listener(ans)
     return JsonResponse({})
+
 
 @csrf_exempt
 def save_assignment(request):
@@ -106,3 +111,28 @@ def save_assignment(request):
         cursor.execute(sql)
     connection.close()
     return JsonResponse({})
+
+
+# @csrf_exempt
+# def create_nanotask(request, project_name, template_name):
+#     project_settings = json.load(open("/root/DynamicCrowd/settings/projects/{}.json".format(project_name)))
+
+#     request_json = json.loads(request.body)
+#     create_id = secrets.token_hex(8)
+
+#     with transaction.atomic():
+#         print(request_json)
+
+#         for row in request_json:
+#             nanotask = Nanotask(project_name=project_name,
+#                                 template_name=template_name,
+#                                 media_data=json.dumps(row),
+#                                 create_id=create_id)
+#             print(nanotask)
+#             nanotask.save(using=project_name)
+#             for i in range(project_settings["DynamicCrowd"]["AnswersPerNanotask"]):
+#                 answer = Answer(nanotask=nanotask)
+#                 answer.save(using=project_name)
+
+
+#     return JsonResponse({"nanotask_id":create_id})

@@ -57,15 +57,19 @@ class Context:
                     answer = Answer(nanotask=nanotask)
                     answer.save(using=self.project_name)
 
+        return create_id
+
     def export_answers(self, callback):
         for row in Answer.objects.using(self.project_name).filter(nanotask__project_name=self.project_name):
             callback(model_to_dict(row), model_to_dict(row.nanotask))
+
 
 def main():
     context = Context("/root/DynamicCrowd/settings/global.json")
     mod = __import__(context.operation, fromlist=["run"])
     run = getattr(mod,"run")
     run(context)
+
 
 if __name__=="__main__":
     main()
